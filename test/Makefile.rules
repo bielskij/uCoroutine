@@ -1,0 +1,36 @@
+all: test
+
+test: $(TEST_ELF)
+	$(VMOD)$(TEST_ELF)
+	
+clean:
+	$(RM) -rf $(DIR_OUT)
+
+$(DIR_OUT)/uc/%.o: $(DIR_UC)/src/%.c
+	$(MKDIR) -p $(@D)
+	$(ECHO) "[Compiling] $(@F)"
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+$(DIR_OUT)/test/%.o: $(DIR_SRC)/%.c
+	$(MKDIR) -p $(@D)
+	$(ECHO) "[Compiling] $(@F)"
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+$(DIR_OUT)/test/%.opp: $(DIR_SRC)/%.cpp
+	$(MKDIR) -p $(@D)
+	$(ECHO) "[Compiling] $(@F)"
+	$(CPP) -c $(CPPFLAGS) $(CXXFLAGS) -o $@ $<
+
+$(DIR_OUT)/gtest/gtest-all.opp:
+	$(MKDIR) -p $(@D)
+	$(ECHO) "[Compiling] $(@F)"
+	$(CPP) -c $(CPPFLAGS) $(CXXFLAGS) -o $@ $(DIR_GTEST)/src/gtest-all.cc
+	
+$(DIR_OUT)/common/%.opp: $(DIR_COMMON)/src/%.cpp
+	$(MKDIR) -p $(@D)
+	$(ECHO) "[Compiling] $(@F)"
+	$(CPP) -c $(CPPFLAGS) $(CXXFLAGS) -o $@ $<
+	
+$(TEST_ELF): $(OBJS)
+	$(ECHO) "[Linking] $(@F)"
+	$(CPP) -o $@ $(OBJS) $(LDFLAGS)
