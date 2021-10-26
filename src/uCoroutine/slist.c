@@ -5,6 +5,7 @@
  *      Author: jarko
  */
 
+#include "uCoroutine/utils.h"
 #include "uCoroutine/slist.h"
 
 
