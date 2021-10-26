@@ -11,6 +11,16 @@ $(DIR_OUT)/uc/%.o: $(DIR_UC)/src/%.c
 	$(ECHO) "[Compiling] $(@F)"
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
+$(DIR_OUT)/test/%.o: $(DIR_SRC)/%.c
+	$(MKDIR) -p $(@D)
+	$(ECHO) "[Compiling] $(@F)"
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+$(DIR_OUT)/test/%.opp: $(DIR_SRC)/%.cpp
+	$(MKDIR) -p $(@D)
+	$(ECHO) "[Compiling] $(@F)"
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
 $(DIR_OUT)/gtest/gtest-all.opp:
 	$(MKDIR) -p $(@D)
 	$(ECHO) "[Compiling] $(@F)"
@@ -22,4 +32,5 @@ $(DIR_OUT)/common/main.opp:
 	$(CPP) -c $(CPPFLAGS) $(CXXFLAGS) -o $@ $(DIR_COMMON)/src/main.cpp
 	
 $(TEST_ELF): $(OBJS)
+	$(ECHO) "[Linking] $(@F)"
 	$(CPP) -o $@ $(OBJS) $(LDFLAGS)
