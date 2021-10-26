@@ -16,4 +16,9 @@
 	#define IS_NULL(x) ((x) == ((void *) 0))
 #endif
 
+#define container_of(ptr, type, member) \
+	((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
+
+#define array_size(array) ((size_t)(sizeof(array) / sizeof((array)[0])))
+
 #endif /* UCOROUTINE_UTILS_H_ */
