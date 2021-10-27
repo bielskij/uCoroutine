@@ -28,6 +28,18 @@ extern "C" {
 	#endif /* __STDC_VERSION__ */
 #endif
 
+typedef struct _uCoroutine  uCoroutine;
+typedef struct _uCoroutine *uCoroutinePtr;
+
+typedef uint16_t (*uCoroutineFunc)(uCoroutinePtr self, void *coroutineData);
+
+typedef uint8_t  uCoroutinePriority;
+
+typedef uint32_t uCoroutineTick;
+
+#define UCOROUTINE_PRIORITY_MIN 0
+#define UCOROUTINE_PRIORITY_MAX UCOROUTINE_CONFIG_PRIORITIES
+
 #ifdef __cplusplus
 }
 #endif

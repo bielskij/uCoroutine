@@ -8,6 +8,12 @@
 #ifndef UCOROUTINE_INTERNAL_H_
 #define UCOROUTINE_INTERNAL_H_
 
+#define UCOROUTINE_PC_INIT 0
 
+struct _uCoroutine {
+	uCoroutineFunc func;
+	void          *funcData;
+	uint16_t pc;
+};
 
 #endif /* UCOROUTINE_INTERNAL_H_ */

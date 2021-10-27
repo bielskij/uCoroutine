@@ -24,6 +24,27 @@ uCoroutinePtr uCoroutine_new() {
 }
 #endif
 
+void uCoroutine_configure(
+	uCoroutinePtr      coroutine,
+	uCoroutinePriority priority,
+	uCoroutineFunc     func,
+	void              *funcData
+) {
+	coroutine->pc       = UCOROUTINE_PC_INIT;
+	coroutine->func     = func;
+	coroutine->funcData = funcData;
+}
+
+
+void uCoroutine_start(uCoroutinePtr coroutine) {
+	coroutine->pc = UCOROUTINE_PC_INIT;
+}
+
+
+void uCoroutine_stop(uCoroutinePtr coroutine) {
+}
+
+
 void uCoroutine_schedule(void) {
 
 }

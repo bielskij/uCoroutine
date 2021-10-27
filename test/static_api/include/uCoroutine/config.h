@@ -8,28 +8,14 @@
 #ifndef SAMPLE_CONFIG_H_
 #define SAMPLE_CONFIG_H_
 
-/*
- * ====================================
- * uCoroutine features
- * ====================================
- */
-
 /*!
  * Enables dynamic allocation of coroutines.
  */
-#define UCOROUTINE_CONFIG_DYNAMIC_ALLOCATION
-
-/*
- * ====================================
- * uCoroutine internal configuration
- * ====================================
- */
+//#define UCOROUTINE_CONFIG_DYNAMIC_ALLOCATION
 
 /*!
  * Number of coroutine priorities (1 - N)
  */
 #define UCOROUTINE_CONFIG_PRIORITIES 1
-
-#define UCOROUTINE_CONFIG_TICK_HZ    1000
 
 #endif /* SAMPLE_CONFIG_H_ */
