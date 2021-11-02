@@ -89,22 +89,22 @@ void uCoroutine_stop(uCoroutinePtr coroutine);
 /*!
  *
  */
-#define uCoroutine_yield                uCoroutine_internal_yield
+#define uCoroutine_yield                __uCoroutine_yield
 
 /*!
  *
  */
-#define uCoroutine_sleep(seconds)       uCoroutine_internal_sleep(seconds)
+#define uCoroutine_sleep(seconds)       __uCoroutine_sleep(seconds)
 
 /*!
  *
  */
-#define uCoroutine_sleepMs(miliseconds) uCoroutine_internal_sleepMs(miliseconds)
+#define uCoroutine_sleepMs(miliseconds) __uCoroutine_sleepMs(miliseconds)
 
 /*!
  *
  */
-#define uCoroutine_sleepTicks(ticks)    uCoroutine_internal_sleepTicks(ticks)
+#define uCoroutine_sleepTicks(ticks)    __uCoroutine_sleepTicks(ticks)
 
 /*!
  * Coroutines scheduler mainloop. This method never returns unless
