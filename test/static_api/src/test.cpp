@@ -26,8 +26,9 @@ TEST(static_api, basic) {
 
 	uCoroutine_configure(&c, UCOROUTINE_PRIORITY_MIN, basic_routine, NULL);
 
-	uCoroutine_stop(&c);
 	uCoroutine_start(&c);
-
-	uCoroutine_schedule();
+	{
+		uCoroutine_schedule();
+	}
+	uCoroutine_stop(&c);
 }
