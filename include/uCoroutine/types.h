@@ -31,14 +31,33 @@ extern "C" {
 typedef struct _uCoroutine  uCoroutine;
 typedef struct _uCoroutine *uCoroutinePtr;
 
-typedef uint16_t (*uCoroutineFunc)(uCoroutinePtr self, void *coroutineData);
+/*!
+ * Coroutine state tupe. For internal purposes only.
+ */
+typedef uint16_t uCoroutineState;
 
+#define UCOROUTINE_STATE_NULL 0
+
+
+typedef uCoroutineState (*uCoroutineFunc)(uCoroutinePtr self, void *coroutineData);
+
+/*!
+ * Coroutine priority type.
+ */
 typedef uint8_t  uCoroutinePriority;
 
+/*!
+ * Time tick type.
+ */
 typedef uint32_t uCoroutineTick;
 
 #define UCOROUTINE_PRIORITY_MIN 0
 #define UCOROUTINE_PRIORITY_MAX UCOROUTINE_CONFIG_PRIORITIES
+
+/*!
+ * Indicates millisecond period between ticks.
+ */
+#define UCOROUTINE_MS_PER_TICK (1000 / UCOROUTINE_CONFIG_TICK_HZ)
 
 #ifdef __cplusplus
 }

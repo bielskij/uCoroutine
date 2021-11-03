@@ -10,11 +10,24 @@
 #include "uCoroutine.h"
 
 
+UCOROUTINE_FUNC_BEGIN(basic_routine, void) {
+	uCoroutine_sleep(1);
+	uCoroutine_sleepMs(100);
+	uCoroutine_sleepTicks(100);
+	uCoroutine_yield();
+	uCoroutine_interrupt();
+}
+UCOROUTINE_FUNC_END;
 
 
 
 TEST(static_api, basic) {
 	uCoroutine c;
 
-//	uCoroutine_configure(&c, UCOROUTINE_PRIORITY_MIN, )
+	uCoroutine_configure(&c, UCOROUTINE_PRIORITY_MIN, basic_routine, NULL);
+
+	uCoroutine_stop(&c);
+	uCoroutine_start(&c);
+
+	uCoroutine_schedule();
 }

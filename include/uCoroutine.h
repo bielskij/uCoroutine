@@ -8,14 +8,16 @@
 #ifndef UCOROUTINE_H_
 #define UCOROUTINE_H_
 
+#include "uCoroutine/config.h"
+
 #include "uCoroutine/types.h"
+#include "uCoroutine/utils.h"
 
 #ifdef __cplusplus
 	extern "C" {
 #endif
 
 #include "uCoroutine/internal.h"
-#include "uCoroutine/config.h"
 
 /*!
  * The following two macros define a coroutine block of code. They need a pointer to uCoroutine
@@ -89,17 +91,17 @@ void uCoroutine_stop(uCoroutinePtr coroutine);
 /*!
  *
  */
-#define uCoroutine_yield                __uCoroutine_yield
+#define uCoroutine_yield()              __uCoroutine_yield(0)
 
 /*!
  *
  */
-#define uCoroutine_sleep(seconds)       __uCoroutine_sleep(seconds)
+#define uCoroutine_sleep(seconds)       __uCoroutine_sleepTicks(UC_SEC_TO_TICKS(seconds))
 
 /*!
  *
  */
-#define uCoroutine_sleepMs(miliseconds) __uCoroutine_sleepMs(miliseconds)
+#define uCoroutine_sleepMs(miliseconds) __uCoroutine_sleepTicks(UC_MS_TO_TICKS(miliseconds))
 
 /*!
  *
