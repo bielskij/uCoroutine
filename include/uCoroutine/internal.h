@@ -9,19 +9,22 @@
 #define UCOROUTINE_INTERNAL_H_
 
 #include "uCoroutine/slist.h"
+#include "uCoroutine/list.h"
 
 struct _uCoroutine {
-	uCoroutineFunc  func;
-	void           *funcData;
-	uCoroutineState pc;
+	uCoroutineFunc     func;
+	void              *funcData;
+	uCoroutinePriority priority;
 
-	SList           stateListItem; // Item in ready, delayed state lists
-	SList           eventListItem; // Item in event lists
+	uCoroutineTick  delayTicks;
+	uCoroutineState state;
+	List            stateListItem; // Item in ready, delayed state lists
+	List            eventListItem; // Item in event lists
 };
 
 
 #define __UCOROUTINE_BEGIN(_ucPtr) \
-	switch (((uCoroutine *)_ucPtr)->pc) { \
+	switch (((uCoroutine *)_ucPtr)->state) { \
 		case UCOROUTINE_STATE_NULL:
 
 #define __UCOROUTINE_END() \

@@ -8,7 +8,9 @@
 #ifndef UCOROUTINE_H_
 #define UCOROUTINE_H_
 
+// Headers provided by an implementer
 #include "uCoroutine/config.h"
+#include "uCoroutine/platform.h"
 
 #include "uCoroutine/types.h"
 #include "uCoroutine/utils.h"

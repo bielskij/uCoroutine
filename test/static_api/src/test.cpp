@@ -13,7 +13,7 @@
 UCOROUTINE_FUNC_BEGIN(basic_routine, void) {
 	uCoroutine_sleep(1);
 	uCoroutine_sleepMs(100);
-	uCoroutine_sleepTicks(100);
+	uCoroutine_sleepTicks(UC_MS_TO_TICKS(100));
 	uCoroutine_yield();
 	uCoroutine_interrupt();
 }

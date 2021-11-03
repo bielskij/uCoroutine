@@ -26,10 +26,10 @@ $(DIR_OUT)/gtest/gtest-all.opp:
 	$(ECHO) "[Compiling] $(@F)"
 	$(CPP) -c $(CPPFLAGS) $(CXXFLAGS) -o $@ $(DIR_GTEST)/src/gtest-all.cc
 	
-$(DIR_OUT)/common/main.opp:
+$(DIR_OUT)/common/%.opp: $(DIR_COMMON)/src/%.cpp
 	$(MKDIR) -p $(@D)
 	$(ECHO) "[Compiling] $(@F)"
-	$(CPP) -c $(CPPFLAGS) $(CXXFLAGS) -o $@ $(DIR_COMMON)/src/main.cpp
+	$(CPP) -c $(CPPFLAGS) $(CXXFLAGS) -o $@ $<
 	
 $(TEST_ELF): $(OBJS)
 	$(ECHO) "[Linking] $(@F)"

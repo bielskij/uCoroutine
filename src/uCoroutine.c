@@ -7,16 +7,47 @@
 
 
 #include "uCoroutine.h"
+#include "uCoroutine/platform.h"
 
 
-static SList readyCoroutines[UCOROUTINE_CONFIG_PRIORITIES];
-static SList delayedCoroutineLists[2];
+static List readyCoroutines[UCOROUTINE_CONFIG_PRIORITIES];
+static List delayedCoroutineLists[2];
 
-static SList pendingReadyCoroutines;
-static SList *delayedCoroutines    = NULL;
-static SList *ovfDelayedCoroutines = NULL;
+static List  pendingReadyCoroutines;
+static List *delayedCoroutines    = NULL;
+static List *ovfDelayedCoroutines = NULL;
 
-static uCoroutine *currentCoroutine = NULL;
+static bool               scheduleInterrupt = false;
+static uCoroutinePriority topReadyPriority  = UCOROUTINE_PRIORITY_MIN;
+static uCoroutineTick     currentTickCount  = 0;
+static uCoroutine        *currentCoroutine  = NULL;
+
+
+static void _addCoRoutineToReadyQueue(uCoroutine *coroutine) {
+	if (coroutine->priority > topReadyPriority) {
+		topReadyPriority = coroutine->priority;
+	}
+
+	list_insert(&readyCoroutines[coroutine->priority], &coroutine->stateListItem, false);
+}
+
+
+static void _addCoRoutineToDelayQueue(uCoroutine *coroutine, uCoroutineTick delay, List *eventList) {
+	list_remove(&coroutine->stateListItem);
+
+	coroutine->delayTicks = currentTickCount + delay;
+
+	if (coroutine->delayTicks < currentTickCount) {
+		list_insert(ovfDelayedCoroutines, &coroutine->stateListItem, false);
+
+	} else {
+		list_insert(delayedCoroutines, &coroutine->stateListItem, false);
+	}
+
+	if (NOT_NULL(eventList)) {
+		list_insert(eventList, &coroutine->eventListItem, false);
+	}
+}
 
 
 void uCoroutine_initialize(void) {
@@ -24,13 +55,13 @@ void uCoroutine_initialize(void) {
 	ovfDelayedCoroutines = &delayedCoroutineLists[1];
 
 	for (uCoroutinePriority p = UCOROUTINE_PRIORITY_MIN; p <= UCOROUTINE_PRIORITY_MAX; p++) {
-		slist_initialize(&readyCoroutines[p - UCOROUTINE_PRIORITY_MIN]);
+		list_initialize(&readyCoroutines[p - UCOROUTINE_PRIORITY_MIN]);
 	}
 
-	slist_initialize(&pendingReadyCoroutines);
+	list_initialize(&pendingReadyCoroutines);
 
-	slist_initialize(delayedCoroutines);
-	slist_initialize(ovfDelayedCoroutines);
+	list_initialize(delayedCoroutines);
+	list_initialize(ovfDelayedCoroutines);
 }
 
 
@@ -50,34 +81,113 @@ void uCoroutine_configure(
 	uCoroutineFunc     func,
 	void              *funcData
 ) {
-	coroutine->pc       = UCOROUTINE_STATE_NULL;
 	coroutine->func     = func;
 	coroutine->funcData = funcData;
+	coroutine->priority = priority;
 
-	slist_initialize(&coroutine->stateListItem);
-	slist_initialize(&coroutine->eventListItem);
+	coroutine->state = UCOROUTINE_STATE_NULL;
+
+	list_initialize(&coroutine->stateListItem);
+	list_initialize(&coroutine->eventListItem);
 }
 
 
 void uCoroutine_start(uCoroutinePtr coroutine) {
-	coroutine->pc = UCOROUTINE_STATE_NULL;
+	coroutine->state = UCOROUTINE_STATE_NULL;
+
+	_addCoRoutineToReadyQueue(coroutine);
 }
 
 
 void uCoroutine_stop(uCoroutinePtr coroutine) {
+	list_remove(&coroutine->eventListItem);
+	list_remove(&coroutine->stateListItem);
 }
 
 
 void uCoroutine_schedule(void) {
+	scheduleInterrupt = false;
 
+	while (! scheduleInterrupt) {
+		uCoroutine *coroutine;
+
+		// Check pending ready coroutines
+		while (! list_isEmpty(&pendingReadyCoroutines)) {
+			uCoroutine_platform_isr_disable();
+			{
+				coroutine = list_first(&pendingReadyCoroutines, uCoroutine, eventListItem);
+
+				list_remove(&coroutine->eventListItem);
+			}
+			uCoroutine_platform_isr_enable();
+
+			list_remove(&coroutine->stateListItem);
+
+			_addCoRoutineToReadyQueue(coroutine);
+		}
+
+		// Check delayed coroutines
+		{
+			uCoroutineTick lastTickPeriod = uCoroutine_platform_getTicks() - currentTickCount;
+
+			while (lastTickPeriod) {
+				currentTickCount++;
+				lastTickPeriod--;
+
+				// Time overflowed. Swap delayed coroutines lists.
+				if (currentTickCount == 0) {
+					List *tmp = delayedCoroutines;
+
+					delayedCoroutines    = ovfDelayedCoroutines;
+					ovfDelayedCoroutines = tmp;
+				}
+
+				while (! list_isEmpty(delayedCoroutines)) {
+					coroutine = list_first(delayedCoroutines, uCoroutine, stateListItem);
+
+					if (currentTickCount < coroutine->delayTicks) {
+						// timeout has not yet expired
+						break;
+					}
+
+					uCoroutine_platform_isr_disable();
+					{
+						list_remove(&coroutine->stateListItem);
+						list_remove(&coroutine->eventListItem);
+					}
+					uCoroutine_platform_isr_enable();
+
+					_addCoRoutineToReadyQueue(coroutine);
+				}
+			}
+		}
+
+		// Find the highest priority queue that contains ready co-routines.
+		while (list_isEmpty(&readyCoroutines[topReadyPriority])) {
+			if (topReadyPriority == UCOROUTINE_PRIORITY_MIN) {
+				break; // no more coroutines to check
+			}
+
+			--topReadyPriority;
+		}
+
+		if (! list_isEmpty(&readyCoroutines[topReadyPriority])) {
+			currentCoroutine = list_first(&readyCoroutines[topReadyPriority], uCoroutine, stateListItem);
+
+			list_remove(&currentCoroutine->stateListItem);
+			list_insert(&readyCoroutines[topReadyPriority], &currentCoroutine->stateListItem, false);
+
+			currentCoroutine->state = currentCoroutine->func(currentCoroutine, currentCoroutine->funcData);
+		}
+	}
 }
 
 
 void uCoroutine_interrupt(void) {
-
+	scheduleInterrupt = true;
 }
 
 /* Internals */
 void _uCoroutine_sleepTicks(uCoroutineTick ticks) {
-
+	_addCoRoutineToDelayQueue(currentCoroutine, ticks, NULL);
 }
