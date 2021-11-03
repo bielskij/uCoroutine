@@ -8,11 +8,15 @@
 #ifndef UCOROUTINE_INTERNAL_H_
 #define UCOROUTINE_INTERNAL_H_
 
+#include "uCoroutine/slist.h"
 
 struct _uCoroutine {
 	uCoroutineFunc  func;
 	void           *funcData;
 	uCoroutineState pc;
+
+	SList           stateListItem; // Item in ready, delayed state lists
+	SList           eventListItem; // Item in event lists
 };
 
 
