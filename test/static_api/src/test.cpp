@@ -10,13 +10,26 @@
 #include "uCoroutine.h"
 
 
-UCOROUTINE_FUNC_BEGIN(basic_routine, void) {
+struct Context {
+	int  val;
+	bool condition;
+
+	Context() {
+		this->val       = 0;
+		this->condition = true;
+	}
+};
+
+
+UCOROUTINE_FUNC_BEGIN(basic_routine, Context) {
 	while (1) {
 		uCoroutine_sleep(1);
 		uCoroutine_sleepMs(100);
 		uCoroutine_sleepTicks(UC_MS_TO_TICKS(100));
 		uCoroutine_yield();
 		uCoroutine_interrupt();
+
+		context->val = 1;
 	}
 }
 UCOROUTINE_FUNC_END;
@@ -26,11 +39,15 @@ UCOROUTINE_FUNC_END;
 TEST(static_api, basic) {
 	uCoroutine c;
 
-	uCoroutine_configure(&c, UCOROUTINE_PRIORITY_MIN, basic_routine, NULL);
+	Context ctx;
+
+	uCoroutine_configure(&c, UCOROUTINE_PRIORITY_MIN, basic_routine, &ctx);
 
 	uCoroutine_start(&c);
 	{
 		uCoroutine_schedule();
 	}
 	uCoroutine_stop(&c);
+
+	ASSERT_EQ(ctx.val, 1);
 }
