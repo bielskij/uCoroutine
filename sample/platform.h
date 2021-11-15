@@ -34,4 +34,15 @@
  */
 #define uCoroutine_platform_getTicks()
 
+/**
+ * This macro/function is responsible for wrapping printf() standard function.
+ * On some platforms custom or particular implementation might be used.
+ */
+#define uCoroutine_debug_printf()
+
+/**
+ * This macro/procedure aborts current execution. It should finally do reset whole platform.
+ */
+#define uCoroutine_abort()
+
 #endif /* UCOROUTINE_PLATFORM_H_ */

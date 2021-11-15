@@ -5,16 +5,26 @@
  *      Author: jarko
  */
 
-
 #include "uCoroutine/list.h"
+#include "uCoroutine/utils.h"
+
+#ifdef UC_DEBUG_LEVEL_LIST
+	#define UC_DEBUG_LEVEL UC_DEBUG_LEVEL_LIST
+#endif
+#include "uCoroutine/debug.h"
 
 
 void list_initialize(List *list) {
+	UC_ASSERT(NOT_NULL(list));
+
 	list->next = list->prev = list;
 }
 
 
 void list_insert(ListNode *node, ListNode *newNode, bool after) {
+	UC_ASSERT(NOT_NULL(node));
+	UC_ASSERT(NOT_NULL(newNode));
+
 	if (after) {
 		node->next->prev = newNode;
 		newNode->next    = node->next;
@@ -31,6 +41,8 @@ void list_insert(ListNode *node, ListNode *newNode, bool after) {
 
 
 void list_remove(ListNode *node) {
+	UC_ASSERT(NOT_NULL(node));
+
 	node->next->prev = node->prev;
 	node->prev->next = node->next;
 
@@ -39,12 +51,16 @@ void list_remove(ListNode *node) {
 
 
 bool list_isEmpty(List *list) {
+	UC_ASSERT(NOT_NULL(list));
+
 	return list->next == list;
 }
 
 
 size_t list_size(List *list) {
 	size_t size = 0;
+
+	UC_ASSERT(NOT_NULL(list));
 
 	{
 		const List *it = list;

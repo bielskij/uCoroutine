@@ -6,6 +6,7 @@
  */
 #include <pthread.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include "uCoroutine/platform.h"
 
@@ -48,4 +49,9 @@ uCoroutineTick linux_get_ticks(void) {
 	timespecsub(&currTime, &baseTime, &diffTime);
 
 	return (diffTime.tv_sec * 1000) + (diffTime.tv_nsec / 1000000);
+}
+
+
+void linux_abort() {
+	abort();
 }

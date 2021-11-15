@@ -8,19 +8,32 @@
 #include "uCoroutine/utils.h"
 #include "uCoroutine/slist.h"
 
+#ifdef UC_DEBUG_LEVEL_SLIST
+	#define UC_DEBUG_LEVEL UC_DEBUG_LEVEL_SLIST
+#endif
+#include "uCoroutine/debug.h"
+
 
 void slist_initialize(SList *list) {
+	UC_ASSERT(NOT_NULL(list));
+
 	list->next = NULL;
 }
 
 
 void slist_insert(SListNode *node, SListNode *nextNode) {
+	UC_ASSERT(NOT_NULL(node));
+	UC_ASSERT(NOT_NULL(nextNode));
+
 	nextNode->next = node->next;
 	node->next     = nextNode;
 }
 
 
 void slist_append(SList *node, SListNode *newNode) {
+	UC_ASSERT(NOT_NULL(node));
+	UC_ASSERT(NOT_NULL(newNode));
+
 	while (NOT_NULL(node->next)) {
 		node = node->next;
 	}
@@ -31,6 +44,9 @@ void slist_append(SList *node, SListNode *newNode) {
 
 
 void slist_remove(SList *list, SListNode *node) {
+	UC_ASSERT(NOT_NULL(list));
+	UC_ASSERT(NOT_NULL(node));
+
 	while (NOT_NULL(list->next) && list->next != node) list = list->next;
 
 	if (NOT_NULL(list->next)) {
@@ -40,12 +56,16 @@ void slist_remove(SList *list, SListNode *node) {
 
 
 bool slist_isEmpty(SList *list) {
+	UC_ASSERT(NOT_NULL(list));
+
 	return list->next == NULL;
 }
 
 
 size_t slist_size(SList *list) {
 	size_t ret = 0;
+
+	UC_ASSERT(NOT_NULL(list));
 
 	list = list->next;
 	while (NOT_NULL(list)) {
@@ -58,11 +78,15 @@ size_t slist_size(SList *list) {
 
 
 SListNode *slist_first(SList *list) {
+	UC_ASSERT(NOT_NULL(list));
+
 	return list->next;
 }
 
 
 SListNode *slist_last(SList *list) {
+	UC_ASSERT(NOT_NULL(list));
+
 	while (NOT_NULL(list->next)) {
 		list = list->next;
 	}

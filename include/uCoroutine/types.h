@@ -14,6 +14,8 @@ extern "C" {
 
 #include <stdint.h>
 
+#include "uCoroutine/debug/levels.h"
+
 #ifndef __cplusplus
 	#include <stddef.h>
 
@@ -27,6 +29,13 @@ extern "C" {
 		#endif /* bool */
 	#endif /* __STDC_VERSION__ */
 #endif
+
+typedef enum _uCoroutineError {
+	UC_NO_ERROR,
+
+	UC_ERROR_YIELD,
+	UC_ERROR_BLOCKED
+} uCoroutineError;
 
 typedef struct _uCoroutine  uCoroutine;
 typedef struct _uCoroutine *uCoroutinePtr;
