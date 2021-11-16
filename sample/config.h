@@ -59,7 +59,9 @@
  * Each module debug level
  */
 #ifdef UC_DEBUG
-	#define UC_DEBUG_LEVEL_LIST UC_DEBUG_LEVEL_WRN
+	#define UC_DEBUG_LEVEL_LIST       UC_DEBUG_LEVEL_WRN
+	#define UC_DEBUG_LEVEL_SLIST      UC_DEBUG_LEVEL_WRN
+	#define UC_DEBUG_LEVEL_UCOROUTINE UC_DEBUG_LEVEL_WRN
 #endif
 
 #endif /* SAMPLE_CONFIG_H_ */

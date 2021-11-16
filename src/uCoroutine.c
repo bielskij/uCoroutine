@@ -9,6 +9,10 @@
 #include "uCoroutine.h"
 #include "uCoroutine/platform.h"
 
+#ifdef UC_DEBUG_LEVEL_LIST
+	#define UC_DEBUG_LEVEL UC_DEBUG_LEVEL_UCOROUTINE
+#endif
+#include "uCoroutine/debug.h"
 
 static List readyCoroutines[UCOROUTINE_CONFIG_PRIORITIES];
 static List delayedCoroutineLists[2];
@@ -28,6 +32,7 @@ static void _addCoRoutineToReadyQueue(uCoroutine *coroutine) {
 		topReadyPriority = coroutine->priority;
 	}
 
+	// Add new coroutine at the end
 	list_insert(&readyCoroutines[coroutine->priority], &coroutine->stateListItem, false);
 }
 
@@ -37,20 +42,50 @@ static void _addCoRoutineToDelayQueue(uCoroutine *coroutine, uCoroutineTick dela
 
 	coroutine->delayTicks = currentTickCount + delay;
 
-	if (coroutine->delayTicks < currentTickCount) {
-		list_insert(ovfDelayedCoroutines, &coroutine->stateListItem, false);
+	{
+		List *destList;
 
-	} else {
-		list_insert(delayedCoroutines, &coroutine->stateListItem, false);
+		if (coroutine->delayTicks < currentTickCount) {
+			destList = ovfDelayedCoroutines;
+
+		} else {
+			destList = delayedCoroutines;
+		}
+
+		// Insert new node in correct order (time and priorities)
+		list_for_each(destList) {
+			uCoroutine *tmp = container_of(it, uCoroutine, stateListItem);
+
+			if (coroutine->delayTicks == tmp->delayTicks) {
+				// follow priorities.
+				if (coroutine->priority > tmp->delayTicks) {
+					list_insert(it, &coroutine->stateListItem, false);
+					break;
+				}
+
+			} else if (coroutine->delayTicks < tmp->delayTicks) {
+				list_insert(it, &coroutine->stateListItem, false);
+				break;
+			}
+		}
+
+		// Just push at the end if it was not inserted in previous step.
+		if (list_isEmpty(&( coroutine->stateListItem ))) {
+			list_insert(destList, &coroutine->stateListItem, false);
+		}
 	}
 
 	if (NOT_NULL(eventList)) {
+		// TODO: Insert in FIFO order including priorities.
 		list_insert(eventList, &coroutine->eventListItem, false);
 	}
 }
 
 
 void uCoroutine_initialize(void) {
+	UC_ASSERT(IS_NULL(delayedCoroutines));
+	UC_ASSERT(IS_NULL(ovfDelayedCoroutines));
+
 	delayedCoroutines    = &delayedCoroutineLists[0];
 	ovfDelayedCoroutines = &delayedCoroutineLists[1];
 
@@ -66,7 +101,8 @@ void uCoroutine_initialize(void) {
 
 
 void uCoroutine_terminate(void) {
-
+	delayedCoroutines    = NULL;
+	ovfDelayedCoroutines = NULL;
 }
 
 #ifdef UCOROUTINE_CONFIG_DYNAMIC_ALLOCATION
@@ -75,12 +111,17 @@ uCoroutinePtr uCoroutine_new() {
 }
 #endif
 
-void uCoroutine_configure(
+void uCoroutine_prepare(
 	uCoroutinePtr      coroutine,
 	uCoroutinePriority priority,
 	uCoroutineFunc     func,
 	void              *funcData
 ) {
+	UC_ASSERT(NOT_NULL(coroutine));
+	UC_ASSERT(priority >= UCOROUTINE_PRIORITY_MIN);
+	UC_ASSERT(priority <= UCOROUTINE_PRIORITY_MAX);
+	UC_ASSERT(NOT_NULL(func));
+
 	coroutine->func     = func;
 	coroutine->funcData = funcData;
 	coroutine->priority = priority;
@@ -93,6 +134,13 @@ void uCoroutine_configure(
 
 
 void uCoroutine_start(uCoroutinePtr coroutine) {
+	UC_ASSERT(NOT_NULL(coroutine));
+	UC_ASSERT(NOT_NULL(coroutine->func));
+	UC_ASSERT(coroutine->priority >= UCOROUTINE_PRIORITY_MIN);
+	UC_ASSERT(coroutine->priority <= UCOROUTINE_PRIORITY_MAX);
+	UC_ASSERT(list_isEmpty(&coroutine->eventListItem));
+	UC_ASSERT(list_isEmpty(&coroutine->stateListItem));
+
 	coroutine->state = UCOROUTINE_STATE_NULL;
 
 	_addCoRoutineToReadyQueue(coroutine);
@@ -100,6 +148,8 @@ void uCoroutine_start(uCoroutinePtr coroutine) {
 
 
 void uCoroutine_stop(uCoroutinePtr coroutine) {
+	UC_ASSERT(NOT_NULL(coroutine));
+
 	list_remove(&coroutine->eventListItem);
 	list_remove(&coroutine->stateListItem);
 }
@@ -108,10 +158,14 @@ void uCoroutine_stop(uCoroutinePtr coroutine) {
 void uCoroutine_schedule(void) {
 	scheduleInterrupt = false;
 
+	UC_ASSERT(NOT_NULL(delayedCoroutines));
+	UC_ASSERT(NOT_NULL(ovfDelayedCoroutines));
+
 	while (! scheduleInterrupt) {
 		uCoroutine *coroutine;
 
-		// Check pending ready coroutines
+		// Check pending ready coroutines. They are added to the list from
+		// ISR routines.
 		while (! list_isEmpty(&pendingReadyCoroutines)) {
 			uCoroutine_platform_isr_disable();
 			{
@@ -130,9 +184,8 @@ void uCoroutine_schedule(void) {
 		{
 			uCoroutineTick lastTickPeriod = uCoroutine_platform_getTicks() - currentTickCount;
 
-			while (lastTickPeriod) {
+			while (lastTickPeriod--) {
 				currentTickCount++;
-				lastTickPeriod--;
 
 				// Time overflowed. Swap delayed coroutines lists.
 				if (currentTickCount == 0) {
@@ -146,10 +199,11 @@ void uCoroutine_schedule(void) {
 					coroutine = list_first(delayedCoroutines, uCoroutine, stateListItem);
 
 					if (currentTickCount < coroutine->delayTicks) {
-						// timeout has not yet expired
+						// Timeout has not yet expired. List is sorted.
 						break;
 					}
 
+					// Timeout occurred - move the coroutine to ready list.
 					uCoroutine_platform_isr_disable();
 					{
 						list_remove(&coroutine->stateListItem);
@@ -172,11 +226,14 @@ void uCoroutine_schedule(void) {
 		}
 
 		if (! list_isEmpty(&readyCoroutines[topReadyPriority])) {
+			// Get first available coroutine
 			currentCoroutine = list_first(&readyCoroutines[topReadyPriority], uCoroutine, stateListItem);
 
+			// Move it on back in ready queue
 			list_remove(&currentCoroutine->stateListItem);
 			list_insert(&readyCoroutines[topReadyPriority], &currentCoroutine->stateListItem, false);
 
+			// Execute coroutine function and save new state
 			currentCoroutine->state = currentCoroutine->func(currentCoroutine, currentCoroutine->funcData);
 		}
 	}
@@ -189,5 +246,7 @@ void uCoroutine_interrupt(void) {
 
 /* Internals */
 void _uCoroutine_sleepTicks(uCoroutineTick ticks) {
+	UC_ASSERT(NOT_NULL(currentCoroutine));
+
 	_addCoRoutineToDelayQueue(currentCoroutine, ticks, NULL);
 }

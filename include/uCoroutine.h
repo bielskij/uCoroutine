@@ -51,7 +51,7 @@ void uCoroutine_terminate(void);
 #ifdef UCOROUTINE_CONFIG_DYNAMIC_ALLOCATION
 /*!
  * Allocates a new uCorotine object and configures it by calling
- * uCoroutine_configure() internally.
+ * uCoroutine_prepare() internally.
  *
  * @param priority coroutine priority
  * @param func     coroutine function
@@ -73,7 +73,7 @@ uCoroutinePtr uCoroutine_new(
  * @param func     coroutine function
  * @param funcData user data provided to coroutine function
  */
-void uCoroutine_configure(
+void uCoroutine_prepare(
 	uCoroutinePtr      coroutine,
 	uCoroutinePriority priority,
 	uCoroutineFunc     func,

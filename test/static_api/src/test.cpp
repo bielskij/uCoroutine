@@ -41,7 +41,7 @@ TEST(static_api, basic) {
 
 	Context ctx;
 
-	uCoroutine_configure(&c, UCOROUTINE_PRIORITY_MIN, basic_routine, &ctx);
+	uCoroutine_prepare(&c, UCOROUTINE_PRIORITY_MIN, basic_routine, &ctx);
 
 	uCoroutine_start(&c);
 	{
