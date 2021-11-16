@@ -15,6 +15,7 @@
 #include "uCoroutine/debug.h"
 
 static List readyCoroutines[UCOROUTINE_CONFIG_PRIORITIES];
+// Delayed lists keep coroutines in delayTicks and priority order
 static List delayedCoroutineLists[2];
 
 static List  pendingReadyCoroutines;
@@ -76,8 +77,20 @@ static void _addCoRoutineToDelayQueue(uCoroutine *coroutine, uCoroutineTick dela
 	}
 
 	if (NOT_NULL(eventList)) {
-		// TODO: Insert in FIFO order including priorities.
-		list_insert(eventList, &coroutine->eventListItem, false);
+		list_remove(&coroutine->eventListItem);
+
+		list_for_each(eventList) {
+			uCoroutine *tmp = container_of(it, uCoroutine, eventListItem);
+
+			if (coroutine->priority > tmp->priority) {
+				list_insert(it, &coroutine->eventListItem, false);
+				break;
+			}
+		}
+
+		if (list_isEmpty(&coroutine->eventListItem)) {
+			list_insert(eventList, &coroutine->eventListItem, false);
+		}
 	}
 }
 
