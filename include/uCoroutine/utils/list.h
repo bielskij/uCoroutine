@@ -5,8 +5,8 @@
  *      Author: jarko
  */
 
-#ifndef UCOROUTINE_LIST_H_
-#define UCOROUTINE_LIST_H_
+#ifndef UCOROUTINE_UTILS_LIST_H_
+#define UCOROUTINE_UTILS_LIST_H_
 
 
 #ifdef __cplusplus
@@ -54,4 +54,4 @@ size_t list_size(List *list);
 }
 #endif
 
-#endif /* UCOROUTINE_LIST_H_ */
+#endif /* UCOROUTINE_UTILS_LIST_H_ */

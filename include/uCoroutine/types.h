@@ -14,7 +14,7 @@ extern "C" {
 
 #include <stdint.h>
 
-#include "uCoroutine/debug/levels.h"
+#include "uCoroutine/utils/debug/levels.h"
 
 #ifndef __cplusplus
 	#include <stddef.h>

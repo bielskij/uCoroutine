@@ -13,9 +13,9 @@
 #include "uCoroutine/platform.h"
 
 #include "uCoroutine/types.h"
-#include "uCoroutine/utils.h"
-
 #include "uCoroutine/queue.h"
+
+#include "uCoroutine/utils/utils.h"
 
 #ifdef __cplusplus
 	extern "C" {
@@ -61,6 +61,7 @@ void uCoroutine_terminate(void);
  */
 uCoroutinePtr uCoroutine_new(
 	uCoroutinePriority priority,
+	const char        *name,
 	uCoroutineFunc     func,
 	void              *funcData
 );
@@ -77,6 +78,7 @@ uCoroutinePtr uCoroutine_new(
  */
 void uCoroutine_prepare(
 	uCoroutinePtr      coroutine,
+	const char        *name,
 	uCoroutinePriority priority,
 	uCoroutineFunc     func,
 	void              *funcData

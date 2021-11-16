@@ -5,8 +5,8 @@
  *      Author: jarko
  */
 
-#ifndef UCOROUTINE_SLIST_H_
-#define UCOROUTINE_SLIST_H_
+#ifndef UCOROUTINE_UTILS_SLIST_H_
+#define UCOROUTINE_UTILS_SLIST_H_
 
 #ifdef __cplusplus
 extern "C"
@@ -50,4 +50,4 @@ SListNode *slist_last(SList *list);
 }
 #endif
 
-#endif /* UCOROUTINE_SLIST_H_ */
+#endif /* UCOROUTINE_UTILS_SLIST_H_ */

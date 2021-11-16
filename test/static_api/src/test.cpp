@@ -73,8 +73,8 @@ TEST(static_api, basic) {
 
 	Context ctx;
 
-	uCoroutine_prepare(&master, UCOROUTINE_PRIORITY_MIN, basic_routine_master, &ctx);
-	uCoroutine_prepare(&slave,  UCOROUTINE_PRIORITY_MIN, basic_routine_slave,  &ctx);
+	uCoroutine_prepare(&master, "a", UCOROUTINE_PRIORITY_MIN, basic_routine_master, &ctx);
+	uCoroutine_prepare(&slave,  "b", UCOROUTINE_PRIORITY_MIN, basic_routine_slave,  &ctx);
 
 	uCoroutine_start(&master);
 	uCoroutine_start(&slave);

@@ -5,13 +5,13 @@
  *      Author: jarko
  */
 
-#include "uCoroutine/utils.h"
-#include "uCoroutine/slist.h"
+#include "uCoroutine/utils/utils.h"
+#include "uCoroutine/utils/slist.h"
 
 #ifdef UC_DEBUG_LEVEL_SLIST
 	#define UC_DEBUG_LEVEL UC_DEBUG_LEVEL_SLIST
 #endif
-#include "uCoroutine/debug.h"
+#include "uCoroutine/utils/debug.h"
 
 
 void slist_initialize(SList *list) {

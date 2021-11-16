@@ -4,7 +4,7 @@
  *  Created on: 26.10.2021
  *      Author: Jaroslaw Bielski (bielski.j@gmail.com)
  */
-
+#include <string.h>
 
 #include "uCoroutine.h"
 #include "uCoroutine/platform.h"
@@ -12,7 +12,7 @@
 #ifdef UC_DEBUG_LEVEL_LIST
 	#define UC_DEBUG_LEVEL UC_DEBUG_LEVEL_UCOROUTINE
 #endif
-#include "uCoroutine/debug.h"
+#include "uCoroutine/utils/debug.h"
 
 static List readyCoroutines[UCOROUTINE_CONFIG_PRIORITIES];
 // Delayed lists keep coroutines in delayTicks and priority order
@@ -62,13 +62,19 @@ void uCoroutine_terminate(void) {
 }
 
 #ifdef UCOROUTINE_CONFIG_DYNAMIC_ALLOCATION
-uCoroutinePtr uCoroutine_new() {
+uCoroutinePtr uCoroutine_new(
+	uCoroutinePriority priority,
+	const char        *name,
+	uCoroutineFunc     func,
+	void              *funcData
+) {
 
 }
 #endif
 
 void uCoroutine_prepare(
 	uCoroutinePtr      coroutine,
+	const char        *name,
 	uCoroutinePriority priority,
 	uCoroutineFunc     func,
 	void              *funcData
@@ -81,6 +87,12 @@ void uCoroutine_prepare(
 	coroutine->func     = func;
 	coroutine->funcData = funcData;
 	coroutine->priority = priority;
+
+	memset(coroutine->name, 0, sizeof(coroutine->name));
+
+	if (NOT_NULL(name)) {
+		strncpy(coroutine->name, name, UCOROUTINE_CONFIG_NAME_LENGTH);
+	}
 
 	coroutine->state = UCOROUTINE_STATE_NULL;
 

@@ -5,13 +5,13 @@
  *      Author: jarko
  */
 
-#include "uCoroutine/list.h"
-#include "uCoroutine/utils.h"
+#include "uCoroutine/utils/list.h"
+#include "uCoroutine/utils/utils.h"
 
 #ifdef UC_DEBUG_LEVEL_LIST
 	#define UC_DEBUG_LEVEL UC_DEBUG_LEVEL_LIST
 #endif
-#include "uCoroutine/debug.h"
+#include "uCoroutine/utils/debug.h"
 
 
 void list_initialize(List *list) {

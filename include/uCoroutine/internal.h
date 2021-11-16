@@ -8,13 +8,15 @@
 #ifndef UCOROUTINE_INTERNAL_H_
 #define UCOROUTINE_INTERNAL_H_
 
-#include "uCoroutine/slist.h"
-#include "uCoroutine/list.h"
+#include "uCoroutine/config.h"
+#include "uCoroutine/utils/slist.h"
+#include "uCoroutine/utils/list.h"
 
 struct _uCoroutine {
 	uCoroutineFunc     func;
 	void              *funcData;
 	uCoroutinePriority priority;
+	char               name[UCOROUTINE_CONFIG_NAME_LENGTH + 1];
 
 	uCoroutineTick  delayTicks;
 	uCoroutineState state;

@@ -5,8 +5,8 @@
  *      Author: Jaroslaw Bielski (bielski.j@gmail.com)
  */
 
-#ifndef UCOROUTINE_UTILS_H_
-#define UCOROUTINE_UTILS_H_
+#ifndef UCOROUTINE_UTILS_UTILS_H_
+#define UCOROUTINE_UTILS_UTILS_H_
 
 #if !defined(NOT_NULL)
 	#define NOT_NULL(x) ((x) != ((void *) 0))
@@ -24,4 +24,4 @@
 #define UC_MS_TO_TICKS(_ms)   ((_ms) / UCOROUTINE_MS_PER_TICK)
 #define UC_SEC_TO_TICKS(_sec) UC_MS_TO_TICKS((_sec) * 1000)
 
-#endif /* UCOROUTINE_UTILS_H_ */
+#endif /* UCOROUTINE_UTILS_UTILS_H_ */

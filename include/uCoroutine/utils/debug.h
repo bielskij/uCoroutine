@@ -5,10 +5,11 @@
  *      Author: Jaroslaw Bielski (bielski.j@gmail.com)
  */
 
-#ifndef UCOROUTINE_DEBUG_H_
-#define UCOROUTINE_DEBUG_H_
+#ifndef UCOROUTINE_UTILS_DEBUG_H_
+#define UCOROUTINE_UTILS_DEBUG_H_
 
-#include "uCoroutine/debug/levels.h"
+#include "uCoroutine/utils/debug/levels.h"
+
 #include "uCoroutine/config.h"
 #include "uCoroutine/platform.h"
 
@@ -96,4 +97,4 @@
 	#define UC_ASSERT(x) do { } while (0);
 #endif
 
-#endif /* UCOROUTINE_DEBUG_H_ */
+#endif /* UCOROUTINE_UTILS_DEBUG_H_ */

@@ -5,8 +5,8 @@
  *      Author: Jaroslaw Bielski (bielski.j@gmail.com)
  */
 
-#ifndef UCOROUTINE_DEBUG_LEVELS_H_
-#define UCOROUTINE_DEBUG_LEVELS_H_
+#ifndef UCOROUTINE_UTILS_DEBUG_LEVELS_H_
+#define UCOROUTINE_UTILS_DEBUG_LEVELS_H_
 
 #define UC_DEBUG_LEVEL_ERR 1
 #define UC_DEBUG_LEVEL_WRN 2
@@ -14,4 +14,4 @@
 #define UC_DEBUG_LEVEL_DBG 4
 #define UC_DEBUG_LEVEL_TRC 5
 
-#endif /* UCOROUTINE_DEBUG_LEVELS_H_ */
+#endif /* UCOROUTINE_UTILS_DEBUG_LEVELS_H_ */
