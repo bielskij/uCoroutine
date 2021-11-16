@@ -23,6 +23,21 @@ struct _uCoroutine {
 };
 
 
+struct _uCoroutineQueue {
+	int8_t *memoryAreaHead;  // Head of the queue storage area.
+	int8_t *memoryAreaTail;  // Tail of the queue storage area.
+	int8_t *memoryAreaRead;  // Pointer to prev used item in storage area.
+	int8_t *memoryAreaWrite; // Pointer to next free item in storage area.
+
+	size_t size;
+	size_t used;
+	size_t itemSize;
+
+	List waitingToSend;    // List of coroutines waiting on posting a message into queue.
+	List waitingToReceive; // List of coroutines waiting on reading a message from queue.
+};
+
+
 #define __UCOROUTINE_BEGIN(_ucPtr) \
 	switch (((uCoroutine *)_ucPtr)->state) { \
 		case UCOROUTINE_STATE_NULL:
@@ -49,10 +64,20 @@ struct _uCoroutine {
 	return _UC_STATE(_order); case _UC_STATE(_order):
 
 #define __uCoroutine_sleepTicks(_ticks) \
-	_uCoroutine_sleepTicks(_ticks); \
+	if (_ticks != UCOROUTINE_IMMEDIATE) { \
+		_uCoroutine_suspend(_ticks, NULL); \
+	} \
 	__uCoroutine_yield(0);
 
-void _uCoroutine_sleepTicks(uCoroutineTick ticks);
+bool _uCoroutine_wakeup(List *eventList);
+void _uCoroutine_suspend(uCoroutineTick timeout, List *eventList);
+
+
+void            _uCoroutine_queue_init       (uCoroutineQueuePtr queuePtr, void *memoryArea, size_t itemSize, size_t itemsCount);
+uCoroutineError _uCoroutine_queue_send       (uCoroutineQueuePtr queuePtr, void *itemPtr, uCoroutineTick timeoutTicks);
+bool            _uCoroutine_queue_send_isr   (uCoroutineQueuePtr queuePtr, void *itemPtr, bool coroutineWasWokenUp);
+uCoroutineError _uCoroutine_queue_receive    (uCoroutineQueuePtr queuePtr, void *itemPtr, uCoroutineTick timeoutTicks);
+bool            _uCoroutine_queue_receive_isr(uCoroutineQueuePtr queuePtr, void *itemPtr, bool coroutineWasWokenUp);
 
 
 #endif /* UCOROUTINE_INTERNAL_H_ */

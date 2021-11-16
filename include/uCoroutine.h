@@ -15,6 +15,8 @@
 #include "uCoroutine/types.h"
 #include "uCoroutine/utils.h"
 
+#include "uCoroutine/queue.h"
+
 #ifdef __cplusplus
 	extern "C" {
 #endif

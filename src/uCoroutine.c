@@ -38,63 +38,6 @@ static void _addCoRoutineToReadyQueue(uCoroutine *coroutine) {
 }
 
 
-static void _addCoRoutineToDelayQueue(uCoroutine *coroutine, uCoroutineTick delay, List *eventList) {
-	list_remove(&coroutine->stateListItem);
-
-	coroutine->delayTicks = currentTickCount + delay;
-
-	{
-		List *destList;
-
-		if (coroutine->delayTicks < currentTickCount) {
-			destList = ovfDelayedCoroutines;
-
-		} else {
-			destList = delayedCoroutines;
-		}
-
-		// Insert new node in correct order (time and priorities)
-		list_for_each(destList) {
-			uCoroutine *tmp = container_of(it, uCoroutine, stateListItem);
-
-			if (coroutine->delayTicks == tmp->delayTicks) {
-				// follow priorities.
-				if (coroutine->priority > tmp->delayTicks) {
-					list_insert(it, &coroutine->stateListItem, false);
-					break;
-				}
-
-			} else if (coroutine->delayTicks < tmp->delayTicks) {
-				list_insert(it, &coroutine->stateListItem, false);
-				break;
-			}
-		}
-
-		// Just push at the end if it was not inserted in previous step.
-		if (list_isEmpty(&( coroutine->stateListItem ))) {
-			list_insert(destList, &coroutine->stateListItem, false);
-		}
-	}
-
-	if (NOT_NULL(eventList)) {
-		list_remove(&coroutine->eventListItem);
-
-		list_for_each(eventList) {
-			uCoroutine *tmp = container_of(it, uCoroutine, eventListItem);
-
-			if (coroutine->priority > tmp->priority) {
-				list_insert(it, &coroutine->eventListItem, false);
-				break;
-			}
-		}
-
-		if (list_isEmpty(&coroutine->eventListItem)) {
-			list_insert(eventList, &coroutine->eventListItem, false);
-		}
-	}
-}
-
-
 void uCoroutine_initialize(void) {
 	UC_ASSERT(IS_NULL(delayedCoroutines));
 	UC_ASSERT(IS_NULL(ovfDelayedCoroutines));
@@ -257,9 +200,78 @@ void uCoroutine_interrupt(void) {
 	scheduleInterrupt = true;
 }
 
-/* Internals */
-void _uCoroutine_sleepTicks(uCoroutineTick ticks) {
-	UC_ASSERT(NOT_NULL(currentCoroutine));
 
-	_addCoRoutineToDelayQueue(currentCoroutine, ticks, NULL);
+bool _uCoroutine_wakeup(List *eventList) {
+	uCoroutine *wokenCoroutine = list_first(eventList, uCoroutine, eventListItem);
+
+	list_remove(&wokenCoroutine->eventListItem);
+
+	list_insert(&pendingReadyCoroutines, &wokenCoroutine->eventListItem, false);
+
+	if (wokenCoroutine->priority >= currentCoroutine->priority) {
+		return true;
+	}
+
+	return false;
+}
+
+
+void _uCoroutine_suspend(uCoroutineTick timeout, List *eventList) {
+	uCoroutine *coroutine = currentCoroutine;
+
+	list_remove(&coroutine->stateListItem);
+
+	if (timeout != UCOROUTINE_INFINITY) {
+		coroutine->delayTicks = currentTickCount + timeout;
+
+		{
+			List *destList;
+
+			if (coroutine->delayTicks < currentTickCount) {
+				destList = ovfDelayedCoroutines;
+
+			} else {
+				destList = delayedCoroutines;
+			}
+
+			// Insert new node in correct order (time and priorities)
+			list_for_each(destList) {
+				uCoroutine *tmp = container_of(it, uCoroutine, stateListItem);
+
+				if (coroutine->delayTicks == tmp->delayTicks) {
+					// follow priorities.
+					if (coroutine->priority > tmp->delayTicks) {
+						list_insert(it, &coroutine->stateListItem, false);
+						break;
+					}
+
+				} else if (coroutine->delayTicks < tmp->delayTicks) {
+					list_insert(it, &coroutine->stateListItem, false);
+					break;
+				}
+			}
+
+			// Just push at the end if it was not inserted in previous step.
+			if (list_isEmpty(&( coroutine->stateListItem ))) {
+				list_insert(destList, &coroutine->stateListItem, false);
+			}
+		}
+	}
+
+	if (NOT_NULL(eventList)) {
+		list_remove(&coroutine->eventListItem);
+
+		list_for_each(eventList) {
+			uCoroutine *tmp = container_of(it, uCoroutine, eventListItem);
+
+			if (coroutine->priority > tmp->priority) {
+				list_insert(it, &coroutine->eventListItem, false);
+				break;
+			}
+		}
+
+		if (list_isEmpty(&coroutine->eventListItem)) {
+			list_insert(eventList, &coroutine->eventListItem, false);
+		}
+	}
 }

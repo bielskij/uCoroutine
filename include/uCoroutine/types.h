@@ -34,11 +34,17 @@ typedef enum _uCoroutineError {
 	UC_NO_ERROR,
 
 	UC_ERROR_YIELD,
-	UC_ERROR_BLOCKED
+	UC_ERROR_BLOCKED,
+
+	UC_ERROR_FULL,
+	UC_ERROR_EMPTY
 } uCoroutineError;
 
 typedef struct _uCoroutine  uCoroutine;
 typedef struct _uCoroutine *uCoroutinePtr;
+
+typedef struct _uCoroutineQueue  uCoroutineQueue;
+typedef struct _uCoroutineQueue *uCoroutineQueuePtr;
 
 /*!
  * Coroutine state tupe. For internal purposes only.
@@ -55,13 +61,16 @@ typedef uCoroutineState (*uCoroutineFunc)(uCoroutinePtr self, void *coroutineDat
  */
 typedef uint8_t  uCoroutinePriority;
 
+#define UCOROUTINE_PRIORITY_MIN 0
+#define UCOROUTINE_PRIORITY_MAX UCOROUTINE_CONFIG_PRIORITIES
+
 /*!
  * Time tick type.
  */
 typedef uint32_t uCoroutineTick;
 
-#define UCOROUTINE_PRIORITY_MIN 0
-#define UCOROUTINE_PRIORITY_MAX UCOROUTINE_CONFIG_PRIORITIES
+#define UCOROUTINE_IMMEDIATE 0
+#define UCOROUTINE_INFINITY  UINT32_MAX
 
 /*!
  * Indicates millisecond period between ticks.
