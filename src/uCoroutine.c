@@ -135,10 +135,10 @@ void uCoroutine_stop(uCoroutinePtr coroutine) {
 
 
 void uCoroutine_schedule(void) {
-	scheduleInterrupt = false;
-
 	UC_ASSERT(NOT_NULL(delayedCoroutines));
 	UC_ASSERT(NOT_NULL(ovfDelayedCoroutines));
+
+	scheduleInterrupt = false;
 
 	while (! scheduleInterrupt) {
 		uCoroutine *coroutine;
