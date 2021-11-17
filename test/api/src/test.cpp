@@ -67,22 +67,23 @@ UCOROUTINE_FUNC_BEGIN(basic_routine_slave, Context) {
 UCOROUTINE_FUNC_END;
 
 
-TEST(static_api, basic) {
-	uCoroutine master;
-	uCoroutine slave;
-
+TEST(api, basic) {
 	Context ctx;
 
-	uCoroutine_prepare(&master, "a", UCOROUTINE_PRIORITY_MIN, basic_routine_master, &ctx);
-	uCoroutine_prepare(&slave,  "b", UCOROUTINE_PRIORITY_MIN, basic_routine_slave,  &ctx);
+	uCoroutine master;
+	uCoroutine *slave = uCoroutine_new(UCOROUTINE_PRIORITY_MIN, "slave", basic_routine_slave, &ctx);
+
+	uCoroutine_prepare(&master, "master", UCOROUTINE_PRIORITY_MIN, basic_routine_master, &ctx);
 
 	uCoroutine_start(&master);
-	uCoroutine_start(&slave);
+	uCoroutine_start(slave);
 	{
 		uCoroutine_schedule();
 	}
-	uCoroutine_stop(&slave);
+	uCoroutine_stop(slave);
 	uCoroutine_stop(&master);
+
+	uCoroutine_free(slave);
 
 	ASSERT_EQ(ctx.val, 0xa5);
 }

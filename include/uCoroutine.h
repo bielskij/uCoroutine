@@ -65,6 +65,13 @@ uCoroutinePtr uCoroutine_new(
 	uCoroutineFunc     func,
 	void              *funcData
 );
+
+/**
+ * Disposes dynamically created coroutine.
+ *
+ * @param coroutine coroutine pointer
+ */
+void uCoroutine_free(uCoroutinePtr coroutine);
 #endif
 
 /*!

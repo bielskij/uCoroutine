@@ -35,14 +35,29 @@
 #define uCoroutine_platform_getTicks()
 
 /**
+ * Allocates block of memory of size 'size' on heap.
+ *
+ * @param size size of memory block to allocate
+ * @return pointer to allocated memory
+ */
+#define uCoroutine_platform_malloc(size)
+
+/**
+ * Disposes a memory block allocated by uCoroutine_platform_malloc()
+ *
+ * @param ptr pointer to memory block.
+ */
+#define uCoroutine_platform_free(ptr)     linux_free((ptr))
+
+/**
  * This macro/function is responsible for wrapping printf() standard function.
  * On some platforms custom or particular implementation might be used.
  */
-#define uCoroutine_debug_printf()
+#define uCoroutine_platform_printf()
 
 /**
  * This macro/procedure aborts current execution. It should finally do reset whole platform.
  */
-#define uCoroutine_abort()
+#define uCoroutine_platform_abort()
 
 #endif /* UCOROUTINE_PLATFORM_H_ */

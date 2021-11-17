@@ -68,8 +68,19 @@ uCoroutinePtr uCoroutine_new(
 	uCoroutineFunc     func,
 	void              *funcData
 ) {
+	uCoroutinePtr ret = uCoroutine_platform_malloc(sizeof(uCoroutine));
+	if (NOT_NULL(ret)) {
+		uCoroutine_prepare(ret, name, priority, func, funcData);
+	}
 
+	return ret;
 }
+
+
+void uCoroutine_free(uCoroutinePtr coroutine) {
+	uCoroutine_platform_free(coroutine);
+}
+
 #endif
 
 void uCoroutine_prepare(
@@ -203,6 +214,9 @@ void uCoroutine_schedule(void) {
 
 			// Execute coroutine function and save new state
 			currentCoroutine->state = currentCoroutine->func(currentCoroutine, currentCoroutine->funcData);
+
+		} else {
+			uCoroutine_idle_callback();
 		}
 	}
 }
@@ -286,4 +300,8 @@ void _uCoroutine_suspend(uCoroutineTick timeout, List *eventList) {
 			list_insert(eventList, &coroutine->eventListItem, false);
 		}
 	}
+}
+
+
+void uCoroutine_idle_callback(void) {
 }

@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "uCoroutine/platform.h"
 
@@ -54,4 +55,20 @@ uCoroutineTick linux_get_ticks(void) {
 
 void linux_abort() {
 	abort();
+}
+
+
+void *linux_malloc(size_t size) {
+	return malloc(size);
+}
+
+
+void linux_free(void *ptr) {
+	free(ptr);
+}
+
+extern "C" {
+void uCoroutine_idle_callback(void) {
+	usleep(1 * 1000);
+}
 }

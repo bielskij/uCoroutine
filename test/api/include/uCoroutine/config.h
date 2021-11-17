@@ -33,7 +33,7 @@
 /*!
  * Maximal length of coroutine name.
  */
-#define UCOROUTINE_CONFIG_NAME_LENGTH 1
+#define UCOROUTINE_CONFIG_NAME_LENGTH 8
 
 /*!
  * Number of ticks per second.

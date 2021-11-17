@@ -17,16 +17,21 @@
 
 #define uCoroutine_platform_getTicks()    linux_get_ticks()
 
-#define uCoroutine_abort() linux_abort()
+#define uCoroutine_platform_malloc(size)  linux_malloc((size))
+#define uCoroutine_platform_free(ptr)     linux_free((ptr))
 
-#define uCoroutine_debug_printf printf
+#define uCoroutine_platform_abort() linux_abort()
+
+#define uCoroutine_platform_printf printf
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void linux_isr_set(bool enable);
-void linux_abort();
+void  linux_isr_set(bool enable);
+void  linux_abort();
+void *linux_malloc(size_t size);
+void  linux_free(void *ptr);
 
 uCoroutineTick linux_get_ticks(void);
 
