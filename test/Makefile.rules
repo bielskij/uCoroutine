@@ -19,7 +19,7 @@ $(DIR_OUT)/test/%.o: $(DIR_SRC)/%.c
 $(DIR_OUT)/test/%.opp: $(DIR_SRC)/%.cpp
 	$(MKDIR) -p $(@D)
 	$(ECHO) "[Compiling] $(@F)"
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+	$(CPP) -c $(CPPFLAGS) $(CXXFLAGS) -o $@ $<
 
 $(DIR_OUT)/gtest/gtest-all.opp:
 	$(MKDIR) -p $(@D)
