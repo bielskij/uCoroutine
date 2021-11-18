@@ -129,7 +129,12 @@ void uCoroutine_start(uCoroutinePtr coroutine) {
 void uCoroutine_stop(uCoroutinePtr coroutine) {
 	UC_ASSERT(NOT_NULL(coroutine));
 
-	list_remove(&coroutine->eventListItem);
+	uCoroutine_platform_isr_disable();
+	{
+		list_remove(&coroutine->eventListItem);
+	}
+	uCoroutine_platform_isr_enable();
+
 	list_remove(&coroutine->stateListItem);
 }
 
