@@ -61,8 +61,8 @@ typedef uCoroutineState (*uCoroutineFunc)(uCoroutinePtr self, void *coroutineDat
  */
 typedef uint8_t  uCoroutinePriority;
 
-#define UCOROUTINE_PRIORITY_MIN 0
-#define UCOROUTINE_PRIORITY_MAX UCOROUTINE_CONFIG_PRIORITIES
+#define UCOROUTINE_PRIORITY_MIN  0
+#define UCOROUTINE_PRIORITY_MAX (UCOROUTINE_CONFIG_PRIORITIES - 1)
 
 /*!
  * Time tick type.

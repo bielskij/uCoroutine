@@ -28,7 +28,7 @@
 /*!
  * Number of coroutine priorities (1 - N)
  */
-#define UCOROUTINE_CONFIG_PRIORITIES  1
+#define UCOROUTINE_CONFIG_PRIORITIES  3
 
 /*!
  * Maximal length of coroutine name.
