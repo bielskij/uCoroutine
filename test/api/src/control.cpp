@@ -10,7 +10,7 @@
 #include "uCoroutine.h"
 
 
-struct Context {
+struct ContextControl {
 	int counter;
 	int startSlaveDelay;
 	int stopTestDelay;
@@ -20,7 +20,7 @@ struct Context {
 	uCoroutine slaveCoroutine;
 	uCoroutine masterCoroutine;
 
-	Context(int startSlaveDelay, int stopTestDelay) {
+	ContextControl(int startSlaveDelay, int stopTestDelay) {
 		this->counter         = 0;
 		this->startSlaveDelay = startSlaveDelay;
 		this->stopTestDelay   = stopTestDelay;
@@ -28,7 +28,7 @@ struct Context {
 };
 
 
-UCOROUTINE_FUNC_BEGIN(control_start_master_routine, Context) {
+UCOROUTINE_FUNC_BEGIN(control_start_master_routine, ContextControl) {
 	while (1) {
 		uCoroutine_sleepMs(100);
 
@@ -47,7 +47,7 @@ UCOROUTINE_FUNC_BEGIN(control_start_master_routine, Context) {
 UCOROUTINE_FUNC_END;
 
 
-UCOROUTINE_FUNC_BEGIN(control_start_slave_routine, Context) {
+UCOROUTINE_FUNC_BEGIN(control_start_slave_routine, ContextControl) {
 	while (1) {
 		context->order.push_back(self->name[0]);
 
@@ -58,7 +58,7 @@ UCOROUTINE_FUNC_END;
 
 
 TEST(control_start, simple) {
-	Context context(4, 8);
+	ContextControl context(4, 8);
 
 	uCoroutine_prepare(&context.masterCoroutine, "A", UCOROUTINE_PRIORITY_MIN, control_start_master_routine, &context);
 	uCoroutine_prepare(&context.slaveCoroutine,  "B", UCOROUTINE_PRIORITY_MIN, control_start_slave_routine,  &context);

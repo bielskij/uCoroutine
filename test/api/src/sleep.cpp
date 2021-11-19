@@ -10,18 +10,18 @@
 #include "uCoroutine.h"
 
 
-struct Context {
+struct ContextSleep {
 	int counter;
 	int max;
 
-	Context(int max) {
+	ContextSleep(int max) {
 		this->counter = 0;
 		this->max     = max;
 	}
 };
 
 
-UCOROUTINE_FUNC_BEGIN(sleep_interval_sec, Context) {
+UCOROUTINE_FUNC_BEGIN(sleep_interval_sec, ContextSleep) {
 	while (1) {
 		uCoroutine_sleep(1);
 
@@ -36,7 +36,7 @@ UCOROUTINE_FUNC_END;
 
 TEST(sleep, interval_sec) {
 	uCoroutine coroutine;
-	Context    context(3);
+	ContextSleep context(3);
 
 	uCoroutine_prepare(&coroutine, "test", UCOROUTINE_PRIORITY_MIN, sleep_interval_sec, &context);
 	uCoroutine_start(&coroutine);
@@ -55,7 +55,7 @@ TEST(sleep, interval_sec) {
 }
 
 
-UCOROUTINE_FUNC_BEGIN(sleep_interval_ms, Context) {
+UCOROUTINE_FUNC_BEGIN(sleep_interval_ms, ContextSleep) {
 	while (1) {
 		uCoroutine_sleepMs(100);
 
@@ -70,7 +70,7 @@ UCOROUTINE_FUNC_END;
 
 TEST(sleep, interval_ms) {
 	uCoroutine coroutine;
-	Context    context(8);
+	ContextSleep context(8);
 
 	uCoroutine_prepare(&coroutine, "test", UCOROUTINE_PRIORITY_MIN, sleep_interval_ms, &context);
 	uCoroutine_start(&coroutine);
@@ -89,7 +89,7 @@ TEST(sleep, interval_ms) {
 }
 
 
-UCOROUTINE_FUNC_BEGIN(sleep_interval_ticks, Context) {
+UCOROUTINE_FUNC_BEGIN(sleep_interval_ticks, ContextSleep) {
 	while (1) {
 		uCoroutine_sleepTicks(UC_MS_TO_TICKS(100));
 
@@ -104,7 +104,7 @@ UCOROUTINE_FUNC_END;
 
 TEST(sleep, interval_ticks) {
 	uCoroutine coroutine;
-	Context    context(8);
+	ContextSleep context(8);
 
 	uCoroutine_prepare(&coroutine, "test", UCOROUTINE_PRIORITY_MIN, sleep_interval_ticks, &context);
 	uCoroutine_start(&coroutine);

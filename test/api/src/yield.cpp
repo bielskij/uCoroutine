@@ -10,19 +10,22 @@
 #include "uCoroutine.h"
 
 
-struct Context {
+struct ContextYield {
 	int counter;
 	int max;
 	std::string order;
 
-	Context(int max) {
+	ContextYield(int max) {
 		this->counter = 0;
 		this->max     = max;
+	}
+
+	~ContextYield() {
 	}
 };
 
 
-UCOROUTINE_FUNC_BEGIN(yield_routine, Context) {
+UCOROUTINE_FUNC_BEGIN(yield_routine, ContextYield) {
 	while (1) {
 		context->order.push_back(self->name[0]);
 
@@ -36,7 +39,7 @@ UCOROUTINE_FUNC_BEGIN(yield_routine, Context) {
 UCOROUTINE_FUNC_END;
 
 
-UCOROUTINE_FUNC_BEGIN(yield_routine_none, Context) {
+UCOROUTINE_FUNC_BEGIN(yield_routine_none, ContextYield) {
 	while (1) {
 		context->order.push_back(self->name[0]);
 
@@ -49,7 +52,7 @@ UCOROUTINE_FUNC_END;
 TEST(yield, simple) {
 	uCoroutine coroutineA;
 	uCoroutine coroutineB;
-	Context    context(3);
+	ContextYield context(3);
 
 	uCoroutine_prepare(&coroutineA, "A", UCOROUTINE_PRIORITY_MIN, yield_routine,      &context);
 	uCoroutine_prepare(&coroutineB, "B", UCOROUTINE_PRIORITY_MIN, yield_routine_none, &context);
@@ -69,7 +72,7 @@ TEST(yield, simple) {
 TEST(yield, priorities) {
 	uCoroutine coroutineA;
 	uCoroutine coroutineB;
-	Context    context(3);
+	ContextYield context(3);
 
 	uCoroutine_prepare(&coroutineA, "A", UCOROUTINE_PRIORITY_MAX, yield_routine,      &context);
 	uCoroutine_prepare(&coroutineB, "B", UCOROUTINE_PRIORITY_MIN, yield_routine_none, &context);
@@ -90,7 +93,7 @@ TEST(yield, priorities_2) {
 	uCoroutine coroutineA;
 	uCoroutine coroutineB;
 	uCoroutine coroutineC;
-	Context    context(3);
+	ContextYield context(3);
 
 	uCoroutine_prepare(&coroutineA, "A", UCOROUTINE_PRIORITY_MAX, yield_routine,      &context);
 	uCoroutine_prepare(&coroutineB, "B", UCOROUTINE_PRIORITY_MIN, yield_routine_none, &context);
