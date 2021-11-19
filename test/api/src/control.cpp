@@ -47,7 +47,26 @@ UCOROUTINE_FUNC_BEGIN(control_start_master_routine, ContextControl) {
 UCOROUTINE_FUNC_END;
 
 
-UCOROUTINE_FUNC_BEGIN(control_start_slave_routine, ContextControl) {
+UCOROUTINE_FUNC_BEGIN(control_stop_master_routine, ContextControl) {
+	while (1) {
+		uCoroutine_sleepMs(100);
+
+		context->order.push_back(self->name[0]);
+
+		if (++context->counter == context->startSlaveDelay) {
+			uCoroutine_stop(&context->slaveCoroutine);
+		}
+
+		if (context->counter == context->stopTestDelay) {
+			uCoroutine_interrupt();
+			uCoroutine_yield();
+		}
+	}
+}
+UCOROUTINE_FUNC_END;
+
+
+UCOROUTINE_FUNC_BEGIN(control_slave, ContextControl) {
 	while (1) {
 		context->order.push_back(self->name[0]);
 
@@ -61,7 +80,7 @@ TEST(control_start, simple) {
 	ContextControl context(4, 8);
 
 	uCoroutine_prepare(&context.masterCoroutine, "A", UCOROUTINE_PRIORITY_MIN, control_start_master_routine, &context);
-	uCoroutine_prepare(&context.slaveCoroutine,  "B", UCOROUTINE_PRIORITY_MIN, control_start_slave_routine,  &context);
+	uCoroutine_prepare(&context.slaveCoroutine,  "B", UCOROUTINE_PRIORITY_MIN, control_slave,  &context);
 	uCoroutine_start(&context.masterCoroutine);
 
 	uCoroutine_schedule();
@@ -71,4 +90,21 @@ TEST(control_start, simple) {
 
 	ASSERT_EQ(context.counter, context.stopTestDelay);
 	ASSERT_EQ(context.order, "AAAABABAABA");
+}
+
+
+TEST(control_stop, simple) {
+	ContextControl context(4, 8);
+
+	uCoroutine_prepare(&context.masterCoroutine, "A", UCOROUTINE_PRIORITY_MIN, control_stop_master_routine, &context);
+	uCoroutine_prepare(&context.slaveCoroutine,  "B", UCOROUTINE_PRIORITY_MIN, control_slave,  &context);
+	uCoroutine_start(&context.masterCoroutine);
+	uCoroutine_start(&context.slaveCoroutine);
+
+	uCoroutine_schedule();
+
+	uCoroutine_stop(&context.masterCoroutine);
+
+	ASSERT_EQ(context.counter, context.stopTestDelay);
+	ASSERT_EQ(context.order, "BABAABAAAAA");
 }
