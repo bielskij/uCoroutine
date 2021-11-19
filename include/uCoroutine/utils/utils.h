@@ -21,7 +21,7 @@
 
 #define array_size(array) ((size_t)(sizeof(array) / sizeof((array)[0])))
 
-#define UC_MS_TO_TICKS(_ms)   ((_ms) / UCOROUTINE_MS_PER_TICK)
+#define UC_MS_TO_TICKS(_ms)   ((uCoroutineTick)((_ms) / UCOROUTINE_MS_PER_TICK))
 #define UC_SEC_TO_TICKS(_sec) UC_MS_TO_TICKS((_sec) * 1000)
 
 #endif /* UCOROUTINE_UTILS_UTILS_H_ */
