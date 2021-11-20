@@ -210,6 +210,6 @@ TEST(queue, send_recv) {
 	ASSERT_EQ(ctx.result.size(), sizeof(ctx.queueStorage));
 
 	for (size_t i = 0; i < sizeof(ctx.queueStorage); i++) {
-		ASSERT_EQ(ctx.result[i], i);
+		ASSERT_EQ(ctx.result[i], (char)i);
 	}
 }
