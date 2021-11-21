@@ -17,7 +17,7 @@
 #endif
 
 #define container_of(ptr, type, member) \
-	((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
+	((type *)((char *)(ptr) - (char *)(&((type *)0)->member)))
 
 #define array_size(array) ((size_t)(sizeof(array) / sizeof((array)[0])))
 
