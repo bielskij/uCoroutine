@@ -13,6 +13,12 @@
 #include "uCoroutine/platform.h"
 
 
+#define UART_BAUD 38400
+#define UART_BAUD_REG (((F_CPU / 16) / UART_BAUD) - 1)
+
+#define _waitForTransmit() while (! (UCSR0A & _BV(UDRE0)));
+
+
 static volatile uCoroutineTick _currentTime = 0;
 
 
